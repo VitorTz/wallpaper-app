@@ -1,48 +1,58 @@
 import { StyleSheet, Text, View, Image, Pressable } from 'react-native'
 import React from 'react'
-import { StatusBar } from 'expo-status-bar'
 import { wp, hp } from '../helpers/common'
 import Animated, { FadeInDown } from 'react-native-reanimated'
 import { LinearGradient } from 'expo-linear-gradient'
 import { theme } from '../constants/themes'
 import { useRouter } from 'expo-router'
+import { StatusBar } from 'expo-status-bar'
 
 
-const WelcomeScreen = () => {
-    const router = useRouter();
+const BackgroundImage = () => {
+    return (
+        <Image 
+            source={require("../assets/images/welcome.png")} 
+            style={styles.backgroundImage}
+            resizeMode='cover'>
+        </Image>
+    )
+}
 
+
+const Header = () => {
+    const router = useRouter()
+
+    return (
+        <Animated.View entering={FadeInDown.duration(600)} style={{flex: 1}}>
+            <LinearGradient
+                colors={['rgba(255, 255, 255, 0)', 'rgba(255, 255, 255, 0.5)', 'white', 'white']}
+                style={styles.gradient}
+                start={{x: 0.5, y: 0}}
+                end={{x: 0.5, y: 0.8}}
+            />
+            <View style={styles.contentContainer}>
+                
+                <Animated.Text entering={FadeInDown.delay(400).springify()} style={styles.title}>Pixels</Animated.Text>
+                
+                <Animated.Text entering={FadeInDown.delay(550).springify()} style={styles.punchLine}>Every Pixel tells a history</Animated.Text>
+
+                <Animated.View entering={FadeInDown.delay(650).springify()}>
+                    <Pressable onPress={() => router.push("home")} style={styles.button}>
+                        <Text style={styles.buttonText}>Start to Explore</Text>
+                    </Pressable>
+                </Animated.View>
+
+            </View>
+        </Animated.View>
+    )
+}
+
+const WelcomeScreen = () => {    
     return (    
         <View style={styles.container}>
-            <StatusBar style='light' ></StatusBar>
-            <Image 
-                source={require("../assets/images/welcome.png")} 
-                style={styles.backgroundImage}
-
-                resizeMode='cover'>
-            </Image>
-
-            <Animated.View entering={FadeInDown.duration(600)} style={{flex: 1}}>
-                <LinearGradient
-                    colors={['rgba(255, 255, 255, 0)', 'rgba(255, 255, 255, 0.5)', 'white', 'white']}
-                    style={styles.gradient}
-                    start={{x: 0.5, y: 0}}
-                    end={{x: 0.5, y: 0.8}}
-                />
-                <View style={styles.contentContainer}>
-                    
-                    <Animated.Text entering={FadeInDown.delay(400).springify()} style={styles.title}>Pixels</Animated.Text>
-                    
-                    <Animated.Text entering={FadeInDown.delay(550).springify()} style={styles.punchLine}>Every Pixel tells a history</Animated.Text>
-
-                    <Animated.View entering={FadeInDown.delay(650).springify()}>
-                        <Pressable onPress={() => router.push("home")} style={styles.button}>
-                            <Text style={styles.buttonText}>Start to Explore</Text>
-                        </Pressable>
-                    </Animated.View>
-
-                </View>
-            </Animated.View>
-
+            <StatusBar style='light'></StatusBar>
+            <BackgroundImage></BackgroundImage>
+            <Header></Header>
         </View>
     )
 }

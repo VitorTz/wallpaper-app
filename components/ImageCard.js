@@ -1,7 +1,8 @@
-import { StyleSheet, Pressable } from 'react-native'
+import { StyleSheet, View, Pressable, ActivityIndicator } from 'react-native'
 import { getImageHeight, wp } from '../helpers/common'
 import { Image } from 'expo-image'
-import React from 'react'
+import React, { useState } from 'react'
+import { theme } from '../constants/themes'
 
 
 const ImageCard = ({item, index}) => {
@@ -9,15 +10,25 @@ const ImageCard = ({item, index}) => {
     const imageHeight = {
         height: getImageHeight(item.height, item.width)
     }
+    
+    const [loading, setLoading] = useState(false)
 
     return (
-    <Pressable style={styles.container} >
-        <Image
-        style={imageHeight}
-        source={item.url}
-        transition={100}
-        />
-    </Pressable>
+        <View style={styles.container} >
+            <Image
+                style={imageHeight}
+                source={item.url}
+                transition={100}
+                onLoadStart={() => setLoading(true)}
+                onLoadEnd={() => setLoading(false)}
+            />
+            {
+                loading && 
+                <View style={[imageHeight, {position: 'absolute', width: '100%', justifyContent: "center", alignContent: "center"}]} >
+                    <ActivityIndicator size={32} color={theme.colors.black}></ActivityIndicator>
+                </View>
+            }
+        </View>
     )
 }
 

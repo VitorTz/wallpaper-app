@@ -1,4 +1,4 @@
-import { Pressable, StyleSheet, Text, TextInput, View } from 'react-native'
+import { ActivityIndicator, Pressable, StyleSheet, Text, TextInput, View } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { wp, hp, defaultHitSlop } from '../../helpers/common'
 import { ScrollView } from 'react-native'
@@ -12,6 +12,7 @@ import MenuButton from '../../components/MenuButton'
 import ImageGrid from '../../components/ImageGrid'
 import { Ionicons } from '@expo/vector-icons'
 import { debounce } from 'lodash'
+import FilterComponent from '../../components/FilterModal'
 
 
 var page = 1
@@ -19,29 +20,30 @@ var page = 1
 
 const HomeScreen = () => {
     
+    const [hasResults, setHasResults] = useState(true);
     const selectedCategoriesSet = useRef(new Set())
     const searchRef = useRef(null)    
     const [text, setText] = useState('')
     const [images, setImages] = useState([])
     
+    const filterModalRef = useRef(null)
+    
     let lastParams = {}
 
-    useEffect(
-        () => {fetchImages()},
-        []
-    );
+    useEffect(() => {fetchImages()}, []);
 
-    const handleChangeCategory = (cat) => {
-        if (selectedCategoriesSet.current.has(cat)) {
-            selectedCategoriesSet.current.delete(cat)
+    const handleChangeCategory = (category) => {
+        if (selectedCategoriesSet.current.has(category)) {
+            selectedCategoriesSet.current.delete(category)
         } else {
-            selectedCategoriesSet.current.add(cat)
+            selectedCategoriesSet.current.add(category)
         }        
         handleSearch(text)
     }
 
-    const fetchImages = async (params={page: 1}, append=false) => {
+    const fetchImages = async (params={page: 1}, append=false) => {        
         const {success, data} = await pixabayApiCall(params);        
+        setHasResults(data?.total > 0)
         if (success && data.images) {
             lastParams = params
             if (append) {
@@ -49,10 +51,10 @@ const HomeScreen = () => {
             } else {
                 setImages([...data.images])
             }
-        }
+        }        
     }
     
-    const handleSearch = async (searchTerm) => {    
+    const handleSearch = async (searchTerm) => {            
         setText(searchTerm)
 
         let selectedCategory = null
@@ -64,21 +66,29 @@ const HomeScreen = () => {
             page = 1
             searchRef.current.clear()
             setImages([])
-            fetchImages({page: 1, category: selectedCategory})
+            await fetchImages({page: 1, category: selectedCategory})            
             return
         }
 
         if (searchTerm.length > 2) {
             page = 1
             setImages([])
-            fetchImages({page: page, q: searchTerm, category: selectedCategory})            
-        }
+            await fetchImages({page: page, q: searchTerm, category: selectedCategory})            
+        }        
     }    
 
     const debounceSearch = useCallback(
         debounce(handleSearch, 400),
         []
     )
+
+    const openFilterModal = () => {
+        filterModalRef?.current?.present()
+    }
+
+    const closeFilterModal = () => {
+        filterModalRef?.current?.close()
+    }
 
     return (
          <SafeAreaView style={styles.container}>
@@ -87,9 +97,10 @@ const HomeScreen = () => {
                 
                 <View style={styles.header}>
                     <Text style={styles.title}>Pixels</Text>
-                    <MenuButton onPress={() => {}} ></MenuButton>
+                    <MenuButton onPress={openFilterModal} ></MenuButton>
                 </View>
 
+                
                 <View style={{width: '100%', marginBottom: 10}} >
                     <TextInput
                         placeholder='search'
@@ -106,15 +117,24 @@ const HomeScreen = () => {
                         }
                     </View>                              
                 </View>
-                
+                                
                 <CategoryList 
                     categories={AppConstants.categorites} 
-                    handleChangeCategory={handleChangeCategory}                    
+                    handleChangeCategory={handleChangeCategory}
                 />
-
+                                
                 <ScrollView contentContainerStyle={{gap: 15}}>
-                    <View>{images.length > 0 && <ImageGrid images={images}></ImageGrid>}</View>
+                    <View>
+                        {
+                            hasResults ? 
+                                <ImageGrid images={images}></ImageGrid>
+                                :
+                                <Text style={styles.noResultsText} >No results found</Text>
+                        }
+                    </View>
                 </ScrollView>
+                
+                <FilterComponent filterModalRef={filterModalRef} ></FilterComponent>
 
             </View>
         </SafeAreaView>
@@ -158,5 +178,10 @@ const styles = StyleSheet.create({
         marginRight: 10,        
         justifyContent: "center",
         alignItems: "flex-end"
+    },
+    noResultsText: {
+        color: theme.colors.black,
+        fontWeight: "bold",        
+        alignSelf: "center"
     }
 })

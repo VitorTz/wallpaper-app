@@ -1,16 +1,20 @@
-import { StyleSheet, Text, View } from 'react-native'
+import { BottomSheetModalProvider } from '@gorhom/bottom-sheet'
 import { Stack } from 'expo-router'
 import React from 'react'
+import { GestureHandlerRootView } from 'react-native-gesture-handler'
+
 
 const Layout = () => {
   return (
-    <Stack>
-        <Stack.Screen name='index' options={{headerShown: false}} ></Stack.Screen>
-        <Stack.Screen name='home/index' options={{headerShown: false}} ></Stack.Screen>
-    </Stack>
+    <GestureHandlerRootView style={{flex: 1}}>
+      <BottomSheetModalProvider>
+        <Stack>
+            <Stack.Screen name='index' options={{headerShown: false}} ></Stack.Screen>
+            <Stack.Screen name='home/index' options={{headerShown: false}} ></Stack.Screen>
+        </Stack>
+      </BottomSheetModalProvider>
+    </GestureHandlerRootView>
   )
 }
 
 export default Layout
-
-const styles = StyleSheet.create({})

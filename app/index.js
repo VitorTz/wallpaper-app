@@ -32,7 +32,6 @@ const Header = () => {
                 end={{x: 0.5, y: 0.8}}
             />
             <View style={styles.contentContainer}>
-                
                 <Animated.Text 
                     entering={FadeInDown.delay(400).springify()} 
                     style={styles.title}>
@@ -50,7 +49,6 @@ const Header = () => {
                         <Text style={styles.buttonText}>Start to Explore</Text>
                     </Pressable>
                 </Animated.View>
-
             </View>
         </Animated.View>
     )

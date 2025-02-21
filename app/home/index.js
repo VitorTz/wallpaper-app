@@ -24,8 +24,16 @@ const HomeScreen = () => {
     const selectedCategoriesSet = useRef(new Set())
     const searchRef = useRef(null)    
     const [text, setText] = useState('')
-    const [images, setImages] = useState([])
-    const [menuIsOpened, setMenuIsOpened] = useState(false)
+    const [images, setImages] = useState([])    
+
+    const filterChoiseRef = useRef(
+        {
+            "order": null,
+            "orientation": null,
+            "color": null
+        }
+    )
+    
     const filterModalRef = useRef(null)
     
     let lastParams = {}
@@ -130,7 +138,7 @@ const HomeScreen = () => {
                     </View>
                 
                 </ScrollView>
-                <FilterComponent filterModalRef={filterModalRef} ></FilterComponent>
+                <FilterComponent filterModalRef={filterModalRef} filterChoiceRef={filterChoiseRef} ></FilterComponent>
 
             </View>
         </SafeAreaView>

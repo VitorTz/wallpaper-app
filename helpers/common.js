@@ -1,3 +1,4 @@
+import { useRef } from "react";
 import { Dimensions } from "react-native";
 import { Platform } from "react-native";
 
@@ -31,6 +32,40 @@ export const getImageHeight = (height, width) => {
     }
     return 200
 }
+
+export const imageFilters = [
+    {
+        type: "text",
+        key: "order",
+        name: "Order",
+        filterList: ["popular", "latest"]
+    },
+    {
+        type: "text",
+        key: "orientation",
+        name: "Orientation",
+        filterList: ["horizontal", "vertical"]
+    },
+    {
+        type: "color",
+        key: "colors",
+        name: "Colors",
+        filterList: [
+            {name: "red", "hex": "#EF4343"},
+            {name: "yellow", "hex": "#FFDF8D"},
+            {name: "orange", "hex": "#EF803B"},
+            {name: "green", "hex": "#59CE47"},
+            {name: "turquoise", "hex": "#58E3DA"},
+            {name: "blue", "hex": "#3B93D7"},
+            {name: "pink", "hex": "#E046BC"},
+            {name: "gray", "hex": "#8E8E8E" },
+            {name: "black", "hex": "#000000"},
+            {name: "brown", "hex": "#6F3110"},
+            {name: "white", "hex": "#FFFFFF"}
+        ]
+    }
+]
+
 
 export const PER_PAGE_IMAGES = Platform.OS === "web" ? 40 : 20
 

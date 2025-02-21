@@ -4,7 +4,6 @@ import { wp, hp, defaultHitSlop } from '../../helpers/common'
 import { ScrollView } from 'react-native'
 import { AppConstants } from '../../constants/AppConstants'
 import React, { useCallback, useEffect, useRef, useState } from 'react'
-import DefaultStatusBar from '../../components/DefaultStatusBar'
 import CategoryList from '../../components/CategoryList'
 import { theme } from '../../constants/themes'
 import { pixabayApiCall } from '../api'
@@ -13,6 +12,7 @@ import ImageGrid from '../../components/ImageGrid'
 import { Ionicons } from '@expo/vector-icons'
 import { debounce } from 'lodash'
 import FilterComponent from '../../components/FilterModal'
+import { StatusBar } from 'expo-status-bar'
 
 
 var page = 1
@@ -25,7 +25,7 @@ const HomeScreen = () => {
     const searchRef = useRef(null)    
     const [text, setText] = useState('')
     const [images, setImages] = useState([])
-    
+    const [menuIsOpened, setMenuIsOpened] = useState(false)
     const filterModalRef = useRef(null)
     
     let lastParams = {}
@@ -82,22 +82,18 @@ const HomeScreen = () => {
         []
     )
 
-    const openFilterModal = () => {
-        filterModalRef?.current?.present()
-    }
 
-    const closeFilterModal = () => {
-        filterModalRef?.current?.close()
-    }
+    const handleMenuButtonPress = () => {
+        filterModalRef.current?.present()        
+    }    
 
     return (
          <SafeAreaView style={styles.container}>
             <View style={{flex: 1}}>
-                <DefaultStatusBar></DefaultStatusBar>
-                
+                <StatusBar translucent={true} ></StatusBar>
                 <View style={styles.header}>
                     <Text style={styles.title}>Pixels</Text>
-                    <MenuButton onPress={openFilterModal} ></MenuButton>
+                    <MenuButton onPress={handleMenuButtonPress} ></MenuButton>
                 </View>
 
                 
@@ -132,8 +128,8 @@ const HomeScreen = () => {
                                 <Text style={styles.noResultsText} >No results found</Text>
                         }
                     </View>
-                </ScrollView>
                 
+                </ScrollView>
                 <FilterComponent filterModalRef={filterModalRef} ></FilterComponent>
 
             </View>

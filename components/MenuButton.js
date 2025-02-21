@@ -1,17 +1,16 @@
 import { StyleSheet, View, Pressable } from 'react-native'
 import { defaultHitSlop } from '../helpers/common'
 import { theme } from '../constants/themes'
+import { Ionicons } from '@expo/vector-icons'
 import React from 'react'
 
 
 const MenuButton = ({onPress}) => {
   return (
     <Pressable hitSlop={defaultHitSlop} onPress={onPress}>
-        <View style={styles.menuButton}>
-            <View style={styles.line} ></View>
-            <View style={[styles.line, {marginLeft: 4}]} ></View>
-            <View style={styles.line} ></View>
-        </View>
+        <View style={styles.menuButton} >
+          <Ionicons name='menu' size={32}></Ionicons>
+        </View>        
     </Pressable>
   )
 }

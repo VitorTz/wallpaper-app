@@ -1,43 +1,68 @@
-import { View, Text, StyleSheet } from 'react-native'
-import React, { useCallback, useMemo, useRef } from 'react';
+import { View, Text, StyleSheet, Easing } from 'react-native'
+import React, { useMemo } from 'react';
 import {
   BottomSheetModal,
   BottomSheetView,  
 } from '@gorhom/bottom-sheet';
-import { wp } from '../helpers/common';
+import { BlurView } from 'expo-blur';
+import { ScrollView } from 'react-native-gesture-handler';
+import { Extrapolation, FadeIn, FadeInLeft, FadeInUp, interpolate, useAnimatedStyle } from 'react-native-reanimated';
+import Animated from 'react-native-reanimated';
 
 
 const FilterModal = ({filterModalRef}) => {
   
-  const snapPoints = useMemo(() => ['75%'], [])
+  const snapPoints = useMemo(() => ['50%'], [])
 
   return (
-    <BottomSheetModal       
-        style={{marginHorizontal: wp(4)}}
+    <BottomSheetModal    
         ref={filterModalRef}
         index={0}
         snapPoints={snapPoints}
-        enablePanDownToClose={true}
+        enableDynamicSizing={false}
+        backdropComponent={CustomBackdrop}        
       >
         <BottomSheetView style={styles.contentContainer}>
-          <Text>Awesome 🎉</Text>
+          <ScrollView style={{width: '100%'}} >
+            <Animated.View entering={FadeInLeft.delay(50).duration(400)} style={styles.container}>
+              <Text>Awesome 🎉</Text>
+            </Animated.View>
+          </ScrollView>
         </BottomSheetView>
     </BottomSheetModal>
   )
 }
 
+const CustomBackdrop = ({animatedIndex, style}) => {
+
+  const backdropStyle = [
+    StyleSheet.absoluteFill,
+    style,
+    styles.overlay,
+    
+  ]
+
+  return (
+    <Animated.View entering={FadeIn.delay(100).duration(400)} style={backdropStyle}>
+      <BlurView style={StyleSheet.absoluteFill} tint='dark' intensity={25} >
+
+      </BlurView>
+    </Animated.View>
+  )
+}
+
 export default FilterModal
 
-const styles = StyleSheet.create({
+const styles = StyleSheet.create({  
   container: {
-    flex: 1,
-    padding: 24,
-    justifyContent: 'center',
-    backgroundColor: 'grey',
+    justifyContent: "center", 
+    alignItems: "center"
   },
-  contentContainer: {
-    flex: 1,
+  contentContainer: {    
     alignItems: 'center',    
     padding: 20
   },
+  overlay: {
+    backgroundColor: "rgba(0, 0, 0, 0.5)"
+  }
 })

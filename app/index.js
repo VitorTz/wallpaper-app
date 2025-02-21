@@ -1,17 +1,18 @@
 import { StyleSheet, Text, View, Image, Pressable } from 'react-native'
 import React from 'react'
-import { wp, hp } from '../helpers/common'
 import Animated, { FadeInDown } from 'react-native-reanimated'
 import { LinearGradient } from 'expo-linear-gradient'
 import { theme } from '../constants/themes'
 import { useRouter } from 'expo-router'
 import { StatusBar } from 'expo-status-bar'
+import { Platform } from 'react-native'
+import { wp, hp } from '../helpers/common'
 
 
 const BackgroundImage = () => {
     return (
         <Image 
-            source={require("../assets/images/welcome.png")} 
+            source={ Platform.OS === "web" ? require("../assets/images/welcome.png") : require("../assets/images/welcome1.png")} 
             style={styles.backgroundImage}
             resizeMode='cover'>
         </Image>
@@ -32,9 +33,17 @@ const Header = () => {
             />
             <View style={styles.contentContainer}>
                 
-                <Animated.Text entering={FadeInDown.delay(400).springify()} style={styles.title}>Pixels</Animated.Text>
+                <Animated.Text 
+                    entering={FadeInDown.delay(400).springify()} 
+                    style={styles.title}>
+                    Pixels
+                </Animated.Text>
                 
-                <Animated.Text entering={FadeInDown.delay(550).springify()} style={styles.punchLine}>Every Pixel tells a history</Animated.Text>
+                <Animated.Text 
+                    entering={FadeInDown.delay(550).springify()} 
+                    style={styles.punchLine}>
+                    Every Pixel tells a history
+                </Animated.Text>
 
                 <Animated.View entering={FadeInDown.delay(650).springify()}>
                     <Pressable onPress={() => router.push("home")} style={styles.button}>
@@ -49,7 +58,7 @@ const Header = () => {
 
 const WelcomeScreen = () => {    
     return (    
-        <View style={styles.container}>
+        <View style={styles.container}>            
             <StatusBar style='light'></StatusBar>
             <BackgroundImage></BackgroundImage>
             <Header></Header>
@@ -69,7 +78,7 @@ const styles = StyleSheet.create({
         alignItems: "center",
         justifyContent: "flex-end",
         gap: 20,
-        marginBottom: 20
+        marginBottom: hp(5)
     },
     backgroundImage: {
         width: wp(100),
@@ -83,7 +92,7 @@ const styles = StyleSheet.create({
         bottom: 0
     },
     title: {
-        fontSize: hp(8),
+        fontSize: hp(9),
         fontWeight: theme.fontWeights.bold
     },
     punchLine: {
@@ -99,11 +108,9 @@ const styles = StyleSheet.create({
         letterSpacing: 1
     },
     button: {
-        maxWidth: 500,
-        maxHeight: 80,
         alignItems: "center",
         justifyContent: "center",
-        backgroundColor: theme.colors.neutral(0.9),
+        backgroundColor: theme.colors.black,
         paddingVertical: 15,
         paddingHorizontal: 80,
         borderRadius: 16        

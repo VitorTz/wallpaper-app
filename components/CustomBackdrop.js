@@ -1,5 +1,5 @@
 import { StyleSheet } from 'react-native'
-import Animated from 'react-native-reanimated'
+import Animated, {  FadeIn } from 'react-native-reanimated'
 import { BlurView } from 'expo-blur'
 import React from 'react'
 

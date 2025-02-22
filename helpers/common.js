@@ -33,22 +33,19 @@ export const getImageHeight = (height, width) => {
     return 200
 }
 
-export const imageFilters = [
-    {
-        type: "text",
-        key: "order",
+export const IMAGE_FILTERS = {
+    order: {
+        type: "text",        
         name: "Order",
         filterList: ["popular", "latest"]
     },
-    {
-        type: "text",
-        key: "orientation",
+    orientation: {
+        type: "text",        
         name: "Orientation",
         filterList: ["horizontal", "vertical"]
     },
-    {
-        type: "color",
-        key: "colors",
+    colors: {
+        type: "color",        
         name: "Colors",
         filterList: [
             {name: "red", "hex": "#EF4343"},
@@ -64,7 +61,7 @@ export const imageFilters = [
             {name: "white", "hex": "#FFFFFF"}
         ]
     }
-]
+}
 
 
 export const PER_PAGE_IMAGES = Platform.OS === "web" ? 40 : 20

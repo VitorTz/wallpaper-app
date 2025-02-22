@@ -63,6 +63,7 @@ const HomeScreen = () => {
     }
     
     const handleSearch = async (searchTerm) => {            
+        console.log(filterChoiseRef.current)
         setText(searchTerm)
 
         let selectedCategory = null
@@ -131,9 +132,9 @@ const HomeScreen = () => {
                     <View>
                         {
                             hasResults ? 
-                                <ImageGrid images={images}></ImageGrid>
-                                :
-                                <Text style={styles.noResultsText} >No results found</Text>
+                            <ImageGrid images={images}></ImageGrid>
+                            :
+                            <Text style={styles.noResultsText} >No results found</Text>
                         }
                     </View>
                 

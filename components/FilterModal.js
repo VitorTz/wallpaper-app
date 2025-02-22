@@ -7,7 +7,7 @@ import {
 import { Pressable, ScrollView } from 'react-native-gesture-handler';
 import { FadeIn, FadeInLeft } from 'react-native-reanimated';
 import Animated from 'react-native-reanimated';
-import { hp, wp, imageFilters } from '../helpers/common';
+import { hp, wp, IMAGE_FILTERS } from '../helpers/common';
 import { theme } from '../constants/themes';
 import CustomBackdrop from './CustomBackdrop';
 
@@ -15,58 +15,145 @@ import CustomBackdrop from './CustomBackdrop';
 const COLOR_CONTAINER_RADIUS = Platform.OS === "web" ? 64 : 40
 
 
+const OrderFilter = (filterChoiceRef, ) => {
+  const [selectedOrder, setOrder] = useState('')
+
+
+}
+
+
 const FilterModal = ({filterModalRef, filterChoiceRef}) => {
 
-  let filterState = {}
-  imageFilters.forEach(element => {
-      const [index, setIndex] = useState(null)  
-      filterState[element.key] = {
-        selectedIndex: index,
-        setSelectedIndex: setIndex
-      }
-  });
-  
-  const snapPoints = useMemo(() => ['50%'], [])
+  const [selectedOrder, setOrder] = useState('')
+  const [selectedOrientation, setOrientation] = useState('')
+  const [selectedColor, setColor] = useState('')
 
-
-  const TextFilter = ({textItem}) => {
-    <View>
-      <Text>{textItem.name}</Text>
-    </View>
+  const resetFilters = () => {
+    setOrder('')
+    setOrientation('')
+    setColor('')
+    filterChoiceRef.current['order'] = null
+    filterChoiceRef.current['orientation'] = null
+    filterChoiceRef.current['color'] = null
   }
 
-  const ColorFilter = ({colorItem}) => {
-    <View>
-      <Text>{colorItem.name}</Text>
-    </View>
-  }
-  
-
-  const FilterComponent = ({item}) => {
-
-    const renderFilterComponent = () => {
-      switch (item.type) {
-        case "text":
-          return (
-            <TextFilter textItem={item} ></TextFilter>
-          )
-        case "color":
-          return (
-            <ColorFilter colorItem={item} ></ColorFilter>
-        )
-      }
+  const orderPress = (orderName) => {
+    if (selectedOrder == orderName) {
+      filterChoiceRef.current['order'] = null
+      setOrder(null)
+    } else {
+      filterChoiceRef.current["order"] = orderName
+      setOrder(orderName)
     }
+  }
+
+  const orientationPress = (orientationName) => {
+    if (selectedOrientation == orientationName) {
+      filterChoiceRef.current["orientation"] = null  
+      setOrientation(null)
+    } else {
+      filterChoiceRef.current["orientation"] = orientationName
+      setOrientation(orientationName)
+    }
+  }
+
+  const colorPress = (colorName) => {
+    if (selectedColor == colorName) {
+      filterChoiceRef.current['color'] = null
+      setColor(null)
+    } else {
+      filterChoiceRef.current['color'] = colorName
+      setColor(colorName)
+    }
+  }
+
+
+  const OrderFilter = () => {    
 
     return (
-      <View key={item.key} style={{alignSelf: "flex-start"}} >        
-          <Text style={styles.headerText}>{item.name}</Text>
-          {renderFilterComponent()}
+      <View style={{width: '100%', alignItems: "flex-start"}} >
+        <Text style={styles.headerText} >Order</Text>        
+        <View style={styles.filterContainer} >
+          {
+            IMAGE_FILTERS.order.filterList.map(
+              (order, index) => {
+                return (
+                  <Pressable
+                    key={order} 
+                    onPress={() => orderPress(order)}
+                    style={[styles.textContainerBase, selectedOrder === order ? styles.textContainerActive : styles.textContainerInactive]} 
+                  >
+                    <Text 
+                      style={[styles.text, selectedOrder === order ? styles.textActive : styles.textInactive]} 
+                    >
+                      {order}
+                    </Text>
+                  </Pressable>
+                )
+              }
+            )
+          }        
+        </View>
       </View>
     )
-
   }
 
-  return (
+  const ColorFilter = () => {
+    return (
+      <View>
+        <Text style={styles.headerText} >Colors</Text>
+        <View style={styles.filterContainer}>
+          {
+            IMAGE_FILTERS.colors.filterList.map(
+              (color, index) => {
+                return (
+                  <Pressable key={color.name} onPress={() => colorPress(color.name)}>
+                    <View 
+                      style={[selectedColor == color.name ? styles.colorActiveContainer : styles.colorContainer, {backgroundColor: color.hex}]}
+                    />                    
+                  </Pressable>
+                )
+              }
+            )
+          }
+        </View>
+      </View>
+    )
+  }
+
+  const OrientationFilter = () => {      
+
+    return (
+      <View style={{width: '100%', alignItems: "flex-start"}} >
+        <Text style={styles.headerText} >Orientation</Text>        
+        <View style={styles.filterContainer} >
+          {
+            IMAGE_FILTERS.orientation.filterList.map(
+              (orientation, index) => {
+                return (
+                  <Pressable
+                    key={orientation} 
+                    onPress={() => orientationPress(orientation)}
+                    style={[styles.textContainerBase, selectedOrientation === orientation ? styles.textContainerActive : styles.textContainerInactive]} 
+                  >
+                    <Text 
+                      style={[styles.text, selectedOrientation === orientation ? styles.textActive : styles.textInactive]} 
+                    >
+                      {orientation}
+                    </Text>
+                  </Pressable>
+                )
+              }
+            )
+          }        
+        </View>
+      </View>
+    )
+  }
+
+  const snapPoints = useMemo(() => ['40%'], [])
+
+  return ( 
     <BottomSheetModal    
         ref={filterModalRef}
         index={0}
@@ -74,15 +161,23 @@ const FilterModal = ({filterModalRef, filterChoiceRef}) => {
         enableDynamicSizing={false}
         backdropComponent={CustomBackdrop}
     >
-      <BottomSheetView style={styles.contentContainer}>
+      <BottomSheetView style={{alignItems: "center", padding: 20}}>
         <ScrollView style={{width: '100%'}} >
           <Animated.View 
             entering={FadeInLeft.delay(50).duration(400)} 
-            style={styles.container}>
-            {
-                imageFilters.map(
-                  (item) => {<FilterComponent key={item.key} item={item}/>})
-            }
+            style={styles.container}
+          >
+            <OrderFilter/>
+            <OrientationFilter/>
+            <ColorFilter/>
+            <Pressable 
+              style={{alignSelf: "flex-start", paddingHorizontal: 16, paddingVertical: 10, borderRadius: 4, backgroundColor: theme.colors.black}} 
+              onPress={resetFilters}
+            >
+              <Text style={{color: theme.colors.white}}>
+                reset
+              </Text>
+            </Pressable>
           </Animated.View>
         </ScrollView>
       </BottomSheetView>
@@ -99,10 +194,6 @@ const styles = StyleSheet.create({
     alignItems: "center",    
     gap: 15,
     paddingBottom: 32
-  },
-  contentContainer: {    
-    alignItems: 'center',    
-    padding: 20
   },  
   headerText: {
     alignSelf: "flex-start",
@@ -117,23 +208,42 @@ const styles = StyleSheet.create({
     gap: 10,
     flexWrap: "wrap"
   },
-  textFilterContainer: {
-    borderRadius: 4,        
-    padding: 4,
-    marginRight: 4,
-    paddingVertical: 8, 
-    backgroundColor: theme.colors.grayBG,
-    paddingHorizontal: 16
+  colorContainer: {
+    width: COLOR_CONTAINER_RADIUS,
+    height: COLOR_CONTAINER_RADIUS,
+    borderRadius: COLOR_CONTAINER_RADIUS,
+    borderWidth: 2,
+    borderColor: "black"
   },
-  text: {
+  colorActiveContainer: {
+    width: COLOR_CONTAINER_RADIUS,
+    height: COLOR_CONTAINER_RADIUS,
+    borderWidth: 1,
+    borderRadius: 2,
+    borderCurve: "continuous",
+    borderColor: "black"
+  },
+  textContainerBase: {
+    paddingVertical: 8,  
+    paddingHorizontal: 16, 
+    borderRadius: 4, 
+  },
+  textContainerInactive: {    
+    backgroundColor: theme.colors.grayBG
+  },
+  textContainerActive: {    
+    backgroundColor: theme.colors.black
+  },
+  textBase: {
     fontSize: hp(1.8),
     fontWeight: theme.fontWeights.medium,
     userSelect: 'none'
   },
-  colorContainer: {
-    width: COLOR_CONTAINER_RADIUS,
-    height: COLOR_CONTAINER_RADIUS,
-    borderRadius: COLOR_CONTAINER_RADIUS
+  textInactive: {
+    color: theme.colors.black
+  },  
+  textActive: {
+    color: theme.colors.white
   },
   colorContainerSelected: {
     

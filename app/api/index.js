@@ -7,24 +7,28 @@ const { PIXABAY_KEY } = Constants.expoConfig?.extra || {}
 const PIXABAY_API_URL = `https://pixabay.com/api/?key=${PIXABAY_KEY}&per_page=${PER_PAGE_IMAGES}&editors_choise=true`
 
 
-const createUrl = (params) => { // {q, page, category, order}
-    if (!params) { return PIXABAY_API_URL }
-    let url = PIXABAY_API_URL    
+const createUrl = (params) => {
+    let url = PIXABAY_API_URL
     Object.keys(params).forEach(
         key => {
-            const value = key == 'q' ? encodeURIComponent(params[key]) : params[key];
+            let value = params[key]
             if (value) {
+                if (typeof value === "string") {
+                    value = value.trimStart().trimEnd()                    
+                }
+                value = key == 'q' ? encodeURIComponent(params[key]) : params[key]
                 url += `&${key}=${value}`
             }
         }
-    )    
+    )
     return url
 }
 
 
 export const pixabayApiCall = async (params) => {
     try {   
-        const searchUrl = createUrl(params)        
+        const searchUrl = createUrl(params)
+        console.log("Search url: ", searchUrl)
         const response = await axios.get(searchUrl)
         const images = response.data.hits.map(item => ({
             url: item.webformatURL,

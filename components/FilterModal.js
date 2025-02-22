@@ -10,19 +10,15 @@ import Animated from 'react-native-reanimated';
 import { hp, wp, IMAGE_FILTERS } from '../helpers/common';
 import { theme } from '../constants/themes';
 import CustomBackdrop from './CustomBackdrop';
+import { Ionicons } from '@expo/vector-icons';
+import RotatingElement from './RotatingButton';
 
 
 const COLOR_CONTAINER_RADIUS = Platform.OS === "web" ? 64 : 40
 
 
-const OrderFilter = (filterChoiceRef, ) => {
-  const [selectedOrder, setOrder] = useState('')
 
-
-}
-
-
-const FilterModal = ({filterModalRef, filterChoiceRef}) => {
+const FilterModal = ({filterModalRef, filterChoiceRef, handleFilterChange}) => {
 
   const [selectedOrder, setOrder] = useState('')
   const [selectedOrientation, setOrientation] = useState('')
@@ -35,6 +31,7 @@ const FilterModal = ({filterModalRef, filterChoiceRef}) => {
     filterChoiceRef.current['order'] = null
     filterChoiceRef.current['orientation'] = null
     filterChoiceRef.current['color'] = null
+    handleFilterChange()
   }
 
   const orderPress = (orderName) => {
@@ -43,8 +40,9 @@ const FilterModal = ({filterModalRef, filterChoiceRef}) => {
       setOrder(null)
     } else {
       filterChoiceRef.current["order"] = orderName
-      setOrder(orderName)
+      setOrder(orderName)      
     }
+    handleFilterChange()
   }
 
   const orientationPress = (orientationName) => {
@@ -55,6 +53,7 @@ const FilterModal = ({filterModalRef, filterChoiceRef}) => {
       filterChoiceRef.current["orientation"] = orientationName
       setOrientation(orientationName)
     }
+    handleFilterChange()
   }
 
   const colorPress = (colorName) => {
@@ -65,6 +64,7 @@ const FilterModal = ({filterModalRef, filterChoiceRef}) => {
       filterChoiceRef.current['color'] = colorName
       setColor(colorName)
     }
+    handleFilterChange()
   }
 
 
@@ -151,7 +151,7 @@ const FilterModal = ({filterModalRef, filterChoiceRef}) => {
     )
   }
 
-  const snapPoints = useMemo(() => ['40%'], [])
+  const snapPoints = useMemo(() => ['50%'], [])
 
   return ( 
     <BottomSheetModal    
@@ -170,14 +170,12 @@ const FilterModal = ({filterModalRef, filterChoiceRef}) => {
             <OrderFilter/>
             <OrientationFilter/>
             <ColorFilter/>
-            <Pressable 
-              style={{alignSelf: "flex-start", paddingHorizontal: 16, paddingVertical: 10, borderRadius: 4, backgroundColor: theme.colors.black}} 
-              onPress={resetFilters}
+            <RotatingElement 
+              onPress={resetFilters} 
+              style={{position: 'absolute', right: 0, top: 0}}
             >
-              <Text style={{color: theme.colors.white}}>
-                reset
-              </Text>
-            </Pressable>
+              <Ionicons name='refresh-circle-outline' size={42} />
+            </RotatingElement>
           </Animated.View>
         </ScrollView>
       </BottomSheetView>

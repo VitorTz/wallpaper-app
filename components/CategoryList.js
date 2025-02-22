@@ -1,46 +1,40 @@
 import { View, Text, StyleSheet, FlatList, Pressable, Platform } from 'react-native'
-import React, { useState } from 'react'
-import Animated, { FadeIn } from 'react-native-reanimated'
+import React, { useState, useEffect } from 'react'
+import Animated, { FadeIn, FadeInLeft, FadeInRight } from 'react-native-reanimated'
 import { hp } from '../helpers/common'
 import { theme } from '../constants/themes'
+import { AppConstants } from '../constants/AppConstants'
 
 
-const CategoryItem = ({name, index, handleChangeCategory}) => {
-    const [isSelected, setSelected] = useState(false)    
+const CategoryList = ({selectedCategory, handleChangeCategory}) => {
 
-    const handlePress = () => {        
-        setSelected(!isSelected)
-        handleChangeCategory(name)
+    const CategoryItem = ({ isActive, itemName, itemIndex }) => {                
+        return (
+            <View entering={FadeIn.delay(itemIndex * 200)}>
+                <Pressable 
+                    onPress={() => { isActive ? handleChangeCategory(null) : handleChangeCategory(itemName)}} 
+                    style={[styles.categoryContainerBase, isActive && styles.categoryContainerActive]}
+                >
+                    <Text 
+                    style={[styles.categoryTextBase, isActive && styles.categoryTextActive]}
+                    >
+                    {itemName}
+                    </Text>
+                </Pressable>
+            </View>
+        )
     }
 
-    return (
-        <Animated.View         
-            entering={FadeIn.delay(index * 200)}             
-        >
-            <Pressable onPress={handlePress} style={[styles.categoryContainerBase, isSelected ? styles.categoryContainerActive : styles.categoryContainerInactive]} >
-                <Text 
-                    style={
-                        [styles.categoryTextBase, isSelected ? styles.categoryTextActive : styles.categoryTextInactive]
-                    }>
-                        {name}
-                </Text>                
-            </Pressable>
-        </Animated.View>
-    )
-}
-
-
-const CategoryList = ({categories, handleChangeCategory}) => {
     return ( 
         <View style={styles.container}>
-            <FlatList                            
+            <FlatList
                 horizontal
                 showsHorizontalScrollIndicator={Platform.OS === "web"}                
-                data={categories}
+                data={AppConstants.categorites}
                 keyExtractor={item => item}
                 renderItem={
                     ({ item, index }) => (                                        
-                        <CategoryItem name={item} index={index} handleChangeCategory={handleChangeCategory} ></CategoryItem>
+                        <CategoryItem isActive={selectedCategory == item} itemName={item} itemIndex={index}/>
                     )
                 }>
             </FlatList>
@@ -61,11 +55,8 @@ const styles = StyleSheet.create({
         padding: 4,
         marginRight: 4,
         paddingVertical: 8, 
-        paddingHorizontal: 16
-    },    
-    categoryContainerInactive: {
+        paddingHorizontal: 16,
         backgroundColor: theme.colors.grayBG
-
     },
     categoryContainerActive: {        
         backgroundColor: theme.colors.black
@@ -73,11 +64,9 @@ const styles = StyleSheet.create({
     categoryTextBase: {
         fontSize: hp(1.8),
         fontWeight: theme.fontWeights.medium,
-        userSelect: 'none'
-    },
-    categoryTextInactive: {
+        userSelect: 'none',
         color: theme.colors.black
-    },
+    },    
     categoryTextActive: {
         color: theme.colors.white        
     }

@@ -15,74 +15,68 @@ import FilterComponent from '../../components/FilterModal'
 import { StatusBar } from 'expo-status-bar'
 
 
-var page = 1
+
+var current_params = {
+    q: null,
+    order: null,
+    orientation: null,
+    color: null,
+    page: 1,
+    category: null
+}
 
 
 const HomeScreen = () => {
     
     const [hasResults, setHasResults] = useState(true);
-    const selectedCategoriesSet = useRef(new Set())
+    const [selectedCategory, setSelectedCategory] = useState(null)
+    const [searchText, setSearchText] = useState('')
+    const [images, setImages] = useState([])
     const searchRef = useRef(null)    
-    const [text, setText] = useState('')
-    const [images, setImages] = useState([])    
 
-    const filterChoiseRef = useRef(
-        {
-            "order": null,
-            "orientation": null,
-            "color": null
-        }
-    )
-    
-    const filterModalRef = useRef(null)
-    
-    let lastParams = {}
+    const filterChoiceRef = useRef({order: null, orientation: null, color: null})
+    const filterModalRef = useRef(null)    
 
     useEffect(() => {fetchImages()}, []);
 
-    const handleChangeCategory = (category) => {
-        if (selectedCategoriesSet.current.has(category)) {
-            selectedCategoriesSet.current.delete(category)
-        } else {
-            selectedCategoriesSet.current.add(category)
-        }        
-        handleSearch(text)
+    const handleChangeCategory = (category) => {        
+        setSelectedCategory(category)
+        current_params.category = category
+        handleSearch(searchText)
+    } 
+
+    const handleFilterChange = () => {
+        handleSearch(searchText)
     }
 
-    const fetchImages = async (params={page: 1}, append=false) => {        
-        const {success, data} = await pixabayApiCall(params);        
+    const fetchImages = async (append=false) => {                
+        const {success, data} = await pixabayApiCall(current_params);        
         setHasResults(data?.total > 0)
         if (success && data.images) {
-            lastParams = params
-            if (append) {
-                setImages([...images, ...data.images])
-            } else {
-                setImages([...data.images])
-            }
+            current_params.page += 1
+            append ? setImages([...images, ...data.images]) : setImages([...data.images])            
         }        
     }
-    
-    const handleSearch = async (searchTerm) => {            
-        console.log(filterChoiseRef.current)
-        setText(searchTerm)
 
-        let selectedCategory = null
-        if (selectedCategoriesSet.current.size > 0) {
-            selectedCategory = selectedCategoriesSet.current.values().next().value
-        }
+    const handleSearch = async (searchTerm) => {
+        setSearchText(searchTerm)
         
+        current_params.q = searchTerm
+        current_params.order = filterChoiceRef.current.order
+        current_params.orientation = filterChoiceRef.current.orientation
+        current_params.color = filterChoiceRef.current.color        
+        current_params.page = 1
+
         if (searchTerm == "") {
-            page = 1
             searchRef.current.clear()
             setImages([])
-            await fetchImages({page: 1, category: selectedCategory})            
+            await fetchImages()
             return
         }
 
-        if (searchTerm.length > 2) {
-            page = 1
+        if (searchTerm.length > 2) {            
             setImages([])
-            await fetchImages({page: page, q: searchTerm, category: selectedCategory})            
+            await fetchImages()
         }        
     }    
 
@@ -91,55 +85,49 @@ const HomeScreen = () => {
         []
     )
 
-
-    const handleMenuButtonPress = () => {
-        filterModalRef.current?.present()        
-    }    
-
     return (
          <SafeAreaView style={styles.container}>
             <View style={{flex: 1}}>
+
                 <StatusBar translucent={true} ></StatusBar>
                 <View style={styles.header}>
                     <Text style={styles.title}>Pixels</Text>
-                    <MenuButton onPress={handleMenuButtonPress} ></MenuButton>
+                    <MenuButton onPress={() => filterModalRef.current?.present()} ></MenuButton>
                 </View>
 
-                
+                {/* Searh Bar */}
                 <View style={{width: '100%', marginBottom: 10}} >
                     <TextInput
                         placeholder='search'
                         ref={searchRef}
                         onChangeText={debounceSearch}
                         style={styles.textInput}                        
-                    />                                        
+                    />
                     <View style={styles.closeButton}>
                         {
-                            text && 
+                            searchText && 
                             <Pressable hitSlop={defaultHitSlop} onPress={() => handleSearch('')}>
                                 <Ionicons size={24} name="close-circle-outline"></Ionicons>
                             </Pressable>
                         }
                     </View>                              
                 </View>
-                                
-                <CategoryList 
-                    categories={AppConstants.categorites} 
-                    handleChangeCategory={handleChangeCategory}
-                />
-                                
+
+                {/* Image category */}
+                <CategoryList selectedCategory={selectedCategory} handleChangeCategory={handleChangeCategory}/>
+
+                {/* Images */}
                 <ScrollView contentContainerStyle={{gap: 15}}>
                     <View>
                         {
-                            hasResults ? 
-                            <ImageGrid images={images}></ImageGrid>
-                            :
+                            hasResults ? <ImageGrid images={images}/> :
                             <Text style={styles.noResultsText} >No results found</Text>
                         }
-                    </View>
-                
+                    </View>                
                 </ScrollView>
-                <FilterComponent filterModalRef={filterModalRef} filterChoiceRef={filterChoiseRef} ></FilterComponent>
+                
+                {/* Image filter */}
+                <FilterComponent filterModalRef={filterModalRef} filterChoiceRef={filterChoiceRef} handleFilterChange={handleFilterChange}/>
 
             </View>
         </SafeAreaView>

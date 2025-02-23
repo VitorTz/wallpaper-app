@@ -31,6 +31,7 @@ export const pixabayApiCall = async (params) => {
         const response = await axios.get(searchUrl)
         const images = response.data.hits.map(item => ({
             uri: item.webformatURL,
+            filename: item.previewURL,
             dimensions: {
                 width: item.imageWidth,
                 height: item.imageHeight
@@ -43,7 +44,7 @@ export const pixabayApiCall = async (params) => {
                 total: response.data.hits.length
             }
         }
-    } catch {} {        
-        return {success: false}
+    } catch (err) {        
+        return {success: false, msg: err.message}
     }
 }

@@ -1,11 +1,11 @@
-import { FlatList, StyleSheet, Text, View } from 'react-native'
+import { FlatList, Platform, StyleSheet, Text, View } from 'react-native'
 import { MasonryFlashList } from '@shopify/flash-list'
 import { GRID_COLUMNS } from '../helpers/common'
 import ImageCard from './ImageCard'
 import React from 'react'
 
 
-const ImageGrid = ({images, onScroll, gridRef}) => {
+const ImageGrid = ({images, onScroll, gridRef, router}) => {
   return (    
     <View style={{flex: 1, minHeight: 3}} >
       <MasonryFlashList         
@@ -15,11 +15,11 @@ const ImageGrid = ({images, onScroll, gridRef}) => {
         renderItem={
             ({item, index}) => {
               return (
-                <ImageCard key={index} item={item}/>
+                <ImageCard key={index} item={item} router={router}/>
               )
           }
         }
-        estimatedItemSize={200}     
+        estimatedItemSize={Platform.OS === "web"? 400 : 200}     
         onScroll={onScroll}   
         scrollEventThrottle={5}
       />

@@ -13,6 +13,7 @@ import { Ionicons } from '@expo/vector-icons'
 import { debounce } from 'lodash'
 import FilterComponent from '../../components/FilterModal'
 import { StatusBar } from 'expo-status-bar'
+import { useRouter } from 'expo-router'
 
 
 
@@ -38,7 +39,7 @@ const HomeScreen = () => {
     const [images, setImages] = useState([])
     const searchRef = useRef(null)
     
-    const [endScrollReached, setEndScrollReached] = useState(false)
+    const router = useRouter()
     const scrollRef = useRef(null)
 
     const filterChoiceRef = useRef({order: null, orientation: null, colors: null})
@@ -201,7 +202,7 @@ const HomeScreen = () => {
                 }
 
                 {/* Images */}
-                <ImageGrid images={images} onScroll={handleScroll} gridRef={scrollRef}/>
+                <ImageGrid images={images} onScroll={handleScroll} gridRef={scrollRef} router={router}/>
                 {!hasResults && <Text style={styles.noResultsText} >No more results found</Text>}
                 
                 {/* Image filter */}

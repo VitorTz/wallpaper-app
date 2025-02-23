@@ -5,22 +5,36 @@ import React, { useState } from 'react'
 import { theme } from '../constants/themes'
 
 
-const ImageCard = ({item}) => {
+const ImageCard = ({item, router}) => {
 
     const imageHeight = {          
-        height: getImageHeight(item.height, item.width)        
+        height: getImageHeight(item.dimensions.height, item.dimensions.width)        
     }
     
     const [loading, setLoading] = useState(false)
 
     return (
         <View style={styles.container} >
-            <Image
-                style={imageHeight}
-                source={item.uri}
-                onLoadStart={() => setLoading(true)}
-                onLoadEnd={() => setLoading(false)}
-            />
+            <Pressable onPress={
+                () => router.push(
+                    {
+                        pathname: 'home/image',
+                        params: {
+                            filename: item.filename,
+                            uri: item.uri,
+                            width: item.dimensions.width,
+                            height: item.dimensions.height
+                        }
+                    }
+                )
+            }>
+                <Image
+                    style={imageHeight}
+                    source={item.uri}
+                    onLoadStart={() => setLoading(true)}
+                    onLoadEnd={() => setLoading(false)}
+                />
+            </Pressable>
             {
                 loading && 
                 <View style={[imageHeight, {position: 'absolute', width: '100%', justifyContent: "center", alignContent: "center"}]} >

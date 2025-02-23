@@ -1,7 +1,7 @@
 import { useRef } from "react";
 import { Dimensions } from "react-native";
 import { Platform } from "react-native";
-
+import { theme } from "../constants/themes";
 const {width: deviceWidth, height: deviceHeight} = Dimensions.get('window');
 
 
@@ -24,13 +24,24 @@ export const defaultHitSlop = {
     bottom: 10
 }
 
+
+export const safeAreaContainer = {
+    flex: 1,
+    paddingHorizontal: wp(4),
+    paddingVertical: hp(3),
+    backgroundColor: theme.colors.white
+}
+
 export const getImageHeight = (height, width) => {
+    let h = Platform.OS === "web" ? 200 : 0
     if (width > height) {
-        return 250
+        h += 300
     } else if (width < height) {
-        return 300
+        h += 450
+    } else {
+        h += 250
     }
-    return 200
+    return h
 }
 
 export const IMAGE_FILTERS = {
@@ -63,6 +74,7 @@ export const IMAGE_FILTERS = {
     }
 }
 
+export const sleep = (ms) => {return new Promise(resolve => setTimeout(resolve, ms))}
 
 export const PER_PAGE_IMAGES = Platform.OS === "web" ? 40 : 20
 

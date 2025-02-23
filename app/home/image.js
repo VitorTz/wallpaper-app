@@ -1,6 +1,5 @@
 import { Alert, Platform, Pressable, SafeAreaView, StyleSheet, Text, View } from 'react-native'
-import { AppConstants } from '../../constants/AppConstants'
-import { defaultHitSlop, hp, safeAreaContainer } from '../../helpers/common'
+import { defaultHitSlop, hp } from '../../helpers/common'
 import { wp } from '../../helpers/common'
 import React, { useState } from 'react'
 import { BlurView } from 'expo-blur'
@@ -11,8 +10,10 @@ import { Ionicons } from '@expo/vector-icons'
 import { ActivityIndicator } from 'react-native'
 import { StatusBar } from 'expo-status-bar'
 import { sleep } from '../../helpers/common'
+import Toast from 'react-native-toast-message'
 import * as FileSystem from 'expo-file-system'
 import * as Sharing from 'expo-sharing';
+import { theme } from '../../constants/themes'
 
 
 const ImageScreen = () => {
@@ -56,7 +57,7 @@ const ImageScreen = () => {
         setStatus('downloading')        
         const data = await downloadFile()
         if (data.success) {
-            console.log(data.uri)
+            showToast('Image downloaded')
         }
         setStatus('')
     }
@@ -86,7 +87,28 @@ const ImageScreen = () => {
             return {success: false, error: err}
         }
     }
+
+    const toastConfig = {
+        success: ({text1, props, ...rest}) => {
+            return (
+                <View style={styles.toast}>
+                    <Text style={styles.toastText}>{text1}</Text>
+                </View>
+            )
+        }
+    }
     
+    const showToast = (msg) => {        
+        Toast.show(
+            {
+                type: "success",
+                bottomOffset: 60,
+                text1: msg,
+                position: "bottom"                
+            }
+        )
+    }
+
     return (    
         <BlurView tint='dark' intensity={80} style={styles.container} > 
             <StatusBar hidden={true} />
@@ -136,6 +158,9 @@ const ImageScreen = () => {
                     <Image transition={100} style={[styles.image, getSize()]} source={item.uri} onLoad={onLoad}/>
                 </Animated.View>
             </View>
+                            
+            <Toast config={toastConfig} visibilityTime={2000} />
+
         </BlurView>
     )
 }
@@ -146,6 +171,7 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         justifyContent: "center",
+        padding: wp(4),
         alignItems: "center"
     },
     image: {
@@ -168,5 +194,19 @@ const styles = StyleSheet.create({
         justifyContent: "center",
         borderRadius: hp(4),
         backgroundColor: "rgba(255, 255, 255, 0.2)"
+    },
+    toast: {
+        padding: 15,        
+        width: wp(94),    
+        paddingHorizontal: 30,
+        borderRadius: 4,
+        justifyContent: "center",
+        alignItems: "center",
+        backgroundColor: theme.colors.black
+    },
+    toastText: {
+        fontSize: hp(1.8),
+        fontWeight: theme.fontWeights.medium,
+        color: theme.colors.white
     }
 })

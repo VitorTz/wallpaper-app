@@ -27,13 +27,14 @@ const createUrl = (params) => {
 
 export const pixabayApiCall = async (params) => {
     try {   
-        const searchUrl = createUrl(params)
-        console.log("Search url: ", searchUrl)
+        const searchUrl = createUrl(params)        
         const response = await axios.get(searchUrl)
         const images = response.data.hits.map(item => ({
-            url: item.webformatURL,
-            width: item.imageWidth,
-            height: item.imageHeight
+            uri: item.webformatURL,
+            dimensions: {
+                width: item.imageWidth,
+                height: item.imageHeight
+            }            
         }));
         return {            
             success: true,
@@ -42,8 +43,7 @@ export const pixabayApiCall = async (params) => {
                 total: response.data.hits.length
             }
         }
-    } catch {err} {
-        console.log(err.message)
-        return {success: false, msg: err.message}
+    } catch {} {        
+        return {success: false}
     }
 }

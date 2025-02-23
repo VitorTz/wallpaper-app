@@ -5,7 +5,7 @@ import {
   BottomSheetView,  
 } from '@gorhom/bottom-sheet';
 import { Pressable, ScrollView } from 'react-native-gesture-handler';
-import { FadeIn, FadeInLeft } from 'react-native-reanimated';
+import { FadeIn, FadeInDown, FadeInLeft, FadeOutUp } from 'react-native-reanimated';
 import Animated from 'react-native-reanimated';
 import { hp, wp, IMAGE_FILTERS } from '../helpers/common';
 import { theme } from '../constants/themes';
@@ -18,28 +18,34 @@ const COLOR_CONTAINER_RADIUS = Platform.OS === "web" ? 64 : 40
 
 
 
-const FilterModal = ({filterModalRef, filterChoiceRef, handleFilterChange}) => {
-
-  const [selectedOrder, setOrder] = useState('')
-  const [selectedOrientation, setOrientation] = useState('')
-  const [selectedColor, setColor] = useState('')
+const FilterModal = ({
+  filterModalRef, 
+  filterChoiceRef, 
+  handleFilterChange,
+  selectedOrder,
+  setOrder,
+  selectedOrientation,
+  setOrientation,
+  selectedColor,
+  setColor
+}) => {  
 
   const resetFilters = () => {
     setOrder('')
     setOrientation('')
     setColor('')
-    filterChoiceRef.current['order'] = null
-    filterChoiceRef.current['orientation'] = null
-    filterChoiceRef.current['color'] = null
+    filterChoiceRef.current.order = null
+    filterChoiceRef.current.orientation = null
+    filterChoiceRef.current.colors = null
     handleFilterChange()
   }
 
   const orderPress = (orderName) => {
     if (selectedOrder == orderName) {
-      filterChoiceRef.current['order'] = null
+      filterChoiceRef.current.order = null
       setOrder(null)
     } else {
-      filterChoiceRef.current["order"] = orderName
+      filterChoiceRef.current.order = orderName
       setOrder(orderName)      
     }
     handleFilterChange()
@@ -47,10 +53,10 @@ const FilterModal = ({filterModalRef, filterChoiceRef, handleFilterChange}) => {
 
   const orientationPress = (orientationName) => {
     if (selectedOrientation == orientationName) {
-      filterChoiceRef.current["orientation"] = null  
+      filterChoiceRef.current.orientation = null  
       setOrientation(null)
     } else {
-      filterChoiceRef.current["orientation"] = orientationName
+      filterChoiceRef.current.orientation = orientationName
       setOrientation(orientationName)
     }
     handleFilterChange()
@@ -58,10 +64,10 @@ const FilterModal = ({filterModalRef, filterChoiceRef, handleFilterChange}) => {
 
   const colorPress = (colorName) => {
     if (selectedColor == colorName) {
-      filterChoiceRef.current['color'] = null
+      filterChoiceRef.current.colors = null
       setColor(null)
     } else {
-      filterChoiceRef.current['color'] = colorName
+      filterChoiceRef.current.colors = colorName
       setColor(colorName)
     }
     handleFilterChange()
@@ -100,7 +106,7 @@ const FilterModal = ({filterModalRef, filterChoiceRef, handleFilterChange}) => {
 
   const ColorFilter = () => {
     return (
-      <View>
+      <View style={{width: '100%', alignItems: "flex-start"}} >
         <Text style={styles.headerText} >Colors</Text>
         <View style={styles.filterContainer}>
           {
@@ -163,17 +169,11 @@ const FilterModal = ({filterModalRef, filterChoiceRef, handleFilterChange}) => {
     >
       <BottomSheetView style={{alignItems: "center", padding: 20}}>
         <ScrollView style={{width: '100%'}} >
-          <Animated.View 
-            entering={FadeInLeft.delay(50).duration(400)} 
-            style={styles.container}
-          >
+          <Animated.View entering={FadeInDown.delay(200).duration(400)} style={styles.container}>
             <OrderFilter/>
             <OrientationFilter/>
             <ColorFilter/>
-            <RotatingElement 
-              onPress={resetFilters} 
-              style={{position: 'absolute', right: 0, top: 0}}
-            >
+            <RotatingElement onPress={resetFilters} style={styles.resetButtonStyle}>
               <Ionicons name='refresh-circle-outline' size={42} />
             </RotatingElement>
           </Animated.View>
@@ -196,7 +196,7 @@ const styles = StyleSheet.create({
   headerText: {
     alignSelf: "flex-start",
     fontWeight: theme.fontWeights.semiBold,
-    fontSize: hp(3.4),
+    fontSize: hp(3),
     color: theme.colors.text,
     marginBottom: 10
   },
@@ -243,8 +243,10 @@ const styles = StyleSheet.create({
   textActive: {
     color: theme.colors.white
   },
-  colorContainerSelected: {
-    
+  resetButtonStyle: {
+    position: 'absolute', 
+    right: 10, 
+    top: 0
   }
   
 })

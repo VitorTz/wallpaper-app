@@ -5,10 +5,10 @@ import React, { useState } from 'react'
 import { theme } from '../constants/themes'
 
 
-const ImageCard = ({item, index}) => {
+const ImageCard = ({item}) => {
 
-    const imageHeight = {
-        height: getImageHeight(item.height, item.width)
+    const imageHeight = {          
+        height: getImageHeight(item.height, item.width)        
     }
     
     const [loading, setLoading] = useState(false)
@@ -17,8 +17,7 @@ const ImageCard = ({item, index}) => {
         <View style={styles.container} >
             <Image
                 style={imageHeight}
-                source={item.url}
-                transition={100}
+                source={item.uri}
                 onLoadStart={() => setLoading(true)}
                 onLoadEnd={() => setLoading(false)}
             />

@@ -28,12 +28,12 @@ const CategoryList = ({selectedCategory, handleChangeCategory}) => {
     return ( 
         <View style={styles.container}>
             <FlatList
-                horizontal
-                showsHorizontalScrollIndicator={Platform.OS === "web"}                
+                horizontal                
+                showsHorizontalScrollIndicator={Platform.OS === "web"}
                 data={AppConstants.categorites}
                 keyExtractor={item => item}
                 renderItem={
-                    ({ item, index }) => (                                        
+                    ({ item, index }) => (
                         <CategoryItem isActive={selectedCategory == item} itemName={item} itemIndex={index}/>
                     )
                 }>

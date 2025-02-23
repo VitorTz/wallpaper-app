@@ -20,7 +20,7 @@ var current_params = {
     q: null,
     order: null,
     orientation: null,
-    color: null,
+    colors: null,
     page: 1,
     category: null
 }
@@ -28,14 +28,23 @@ var current_params = {
 
 const HomeScreen = () => {
     
+    const [selectedOrder, setOrder] = useState('')
+    const [selectedOrientation, setOrientation] = useState('')
+    const [selectedColor, setColor] = useState('')
+
     const [hasResults, setHasResults] = useState(true);
     const [selectedCategory, setSelectedCategory] = useState(null)
     const [searchText, setSearchText] = useState('')
     const [images, setImages] = useState([])
-    const searchRef = useRef(null)    
+    const searchRef = useRef(null)
+    
+    const [endScrollReached, setEndScrollReached] = useState(false)
+    const scrollRef = useRef(null)
 
-    const filterChoiceRef = useRef({order: null, orientation: null, color: null})
+    const filterChoiceRef = useRef({order: null, orientation: null, colors: null})
     const filterModalRef = useRef(null)    
+
+    const [filters, setFilters] = useState([])
 
     useEffect(() => {fetchImages()}, []);
 
@@ -45,11 +54,41 @@ const HomeScreen = () => {
         handleSearch(searchText)
     } 
 
-    const handleFilterChange = () => {
+    const handleFilterChange = () => {        
+        let newFilters = []
+        if (filterChoiceRef.current.order) {            
+            newFilters.push({name: "order", value: filterChoiceRef.current.order})
+        }
+        if (filterChoiceRef.current.orientation) {
+            newFilters.push({name: "orientation", value: filterChoiceRef.current.orientation})
+        }
+        if (filterChoiceRef.current.colors) {
+            newFilters.push({name: "colors", value: filterChoiceRef.current.colors})
+        }        
+        setFilters([...newFilters])
         handleSearch(searchText)
     }
 
-    const fetchImages = async (append=false) => {                
+    const handleFilterUnselect = (name) => {
+        switch (name) {
+            case "order":
+                setOrder(null)
+                filterChoiceRef.current.order = null
+                break
+            case "orientation":
+                setOrientation(null)
+                filterChoiceRef.current.orientation = null
+                break
+            case "colors":
+                setColor(null)
+                filterChoiceRef.current.colors = null
+                break
+        }
+        handleFilterChange()
+    }
+
+    const fetchImages = async (append=false) => { 
+        console.log(current_params, append)              
         const {success, data} = await pixabayApiCall(current_params);        
         setHasResults(data?.total > 0)
         if (success && data.images) {
@@ -58,27 +97,45 @@ const HomeScreen = () => {
         }        
     }
 
-    const handleSearch = async (searchTerm) => {
+    const handleSearch = async (searchTerm, append=false) => {
         setSearchText(searchTerm)
         
         current_params.q = searchTerm
         current_params.order = filterChoiceRef.current.order
         current_params.orientation = filterChoiceRef.current.orientation
-        current_params.color = filterChoiceRef.current.color        
+        current_params.colors = filterChoiceRef.current.colors     
         current_params.page = 1
 
         if (searchTerm == "") {
             searchRef.current.clear()
             setImages([])
-            await fetchImages()
+            await fetchImages(append)
             return
         }
 
         if (searchTerm.length > 2) {            
             setImages([])
-            await fetchImages()
+            await fetchImages(append)
         }        
     }    
+    
+    let endReached = false
+
+    const handleScroll = async (event) => {        
+        const height = event.nativeEvent.contentSize.height
+        const scrollViewHeight = event.nativeEvent.layoutMeasurement.height
+        const scrollOffset = event.nativeEvent.contentOffset.y
+        const bottomPosition = height - scrollViewHeight
+        if (!endReached && scrollOffset + 4 >= bottomPosition) {
+            endReached = true            
+            await fetchImages(true)
+            endReached = false
+        }        
+    }
+
+    const handleScrollTop = () => {
+        scrollRef.current.scrollToEnd({animated: true})
+    }
 
     const debounceSearch = useCallback(
         debounce(handleSearch, 400),
@@ -91,7 +148,9 @@ const HomeScreen = () => {
 
                 <StatusBar translucent={true} ></StatusBar>
                 <View style={styles.header}>
-                    <Text style={styles.title}>Pixels</Text>
+                    <Pressable hitSlop={defaultHitSlop} onPress={handleScrollTop}>
+                        <Text style={styles.title}>Pixels</Text>
+                    </Pressable>
                     <MenuButton onPress={() => filterModalRef.current?.present()} ></MenuButton>
                 </View>
 
@@ -113,21 +172,50 @@ const HomeScreen = () => {
                     </View>                              
                 </View>
 
+
                 {/* Image category */}
                 <CategoryList selectedCategory={selectedCategory} handleChangeCategory={handleChangeCategory}/>
 
+                {/* Selected filters */}
+
+                {
+                    filters && 
+                    <View style={{marginBottom: 10}}>
+                        <ScrollView horizontal={true} showsHorizontalScrollIndicator={false}>
+                            {
+                                filters.map(
+                                    (item, index) => {
+                                        return (
+                                            <View key={item.name} style={styles.selectedFilterContainer} >
+                                                <Text>{item.value}</Text>
+                                                <Pressable hitSlop={defaultHitSlop} onPress={() => handleFilterUnselect(item.name)}>
+                                                    <Ionicons name='close-circle-outline' size={22} style={styles.selectedFilterCloseButton} />
+                                                </Pressable>
+                                            </View>
+                                        )
+                                    }
+                                )
+                            }
+                        </ScrollView>
+                    </View>
+                }
+
                 {/* Images */}
-                <ScrollView contentContainerStyle={{gap: 15}}>
-                    <View>
-                        {
-                            hasResults ? <ImageGrid images={images}/> :
-                            <Text style={styles.noResultsText} >No results found</Text>
-                        }
-                    </View>                
-                </ScrollView>
+                <ImageGrid images={images} onScroll={handleScroll} gridRef={scrollRef}/>
+                {!hasResults && <Text style={styles.noResultsText} >No more results found</Text>}
                 
                 {/* Image filter */}
-                <FilterComponent filterModalRef={filterModalRef} filterChoiceRef={filterChoiceRef} handleFilterChange={handleFilterChange}/>
+                <FilterComponent 
+                    filterModalRef={filterModalRef} 
+                    filterChoiceRef={filterChoiceRef} 
+                    handleFilterChange={handleFilterChange}
+                    selectedOrder={selectedOrder}
+                    setOrder={setOrder}
+                    selectedOrientation={selectedOrientation}
+                    setOrientation={setOrientation}
+                    selectedColor={selectedColor}
+                    setColor={setColor}
+                />
 
             </View>
         </SafeAreaView>
@@ -176,5 +264,19 @@ const styles = StyleSheet.create({
         color: theme.colors.black,
         fontWeight: "bold",        
         alignSelf: "center"
+    },
+    selectedFilterContainer: {
+        borderRadius: 4,        
+        padding: 4,
+        marginRight: 4,
+        paddingVertical: 8, 
+        paddingHorizontal: 16,        
+        alignItems: "center",
+        flexDirection: "row",
+        gap: 10,
+        backgroundColor: theme.colors.grayBG
+    },
+    selectedFilterCloseButton: {
+        marginTop: 2
     }
 })
